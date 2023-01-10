@@ -2,54 +2,58 @@
     <div id="burger-table" v-if="burgers">
         <div>
             <Message :msg="msg" v-show="msg"/>
-        <div>
-            <div id="burger-table-heading">
+        </div>
+        <div id="burger-table-heading">
                 <div class="order-id">#:</div>
                 <div>Pão:</div>
                 <div>Carne:</div>
                 <div>Opcionais:</div>
-            <div>Ações:</div>
-            </div>
-        </div>   
-        <div id="burger-table-rows"></div>
-        <div class="burger-table-row" v-for="burger in burgers" :key="burger.id"></div>
-        <div class="order-number">{{ burger.id }}</div>
-        <div>{{ burger.nome }}</div>
-        <div>{{ burger.pao }}</div>
-        <div>{{ burger.carne }}</div>
+                <div>Ações:</div>
+        </div>
+    </div>   
+    <div id="burger-table-rows"></div>    
+        <div class="burger-table-row" v-for="burger in burgers" :key="burger.id">
+        
+            <div class="order-number"> {{burger.id}} </div>
+            <div>{{ burger.nome }}</div>
+            <div>{{ burger.pao }}</div>
+            <div>{{ burger.carne }}</div>
             <div>
                 <ul ul v-for="(opcional, index) in burger.opcionais" :key="index">
                     <li>{{ opcional }}</li>
                 </ul>
             </div>
+
             <div> 
                 <select name="status" class="status" @change="updateBurger($event,burger.id)">
                     <option value="">Selecione</option>
-                    <option v-for="s in status" :key="s.id" :value="s.tipo" :selected=" burges.status == s.tipo">
+                    <option v-for="s in status" :key="s.id" :value="s.tipo" :selected="burger.status == s.tipo">
                         {{ s.tipo }}
                     </option>
                 </select>
-                <button class="delete-btn" @click="deleteBurger(burges.id)">Cancelar</button>
+                <button class="delete-btn" @click="deleteBurger(burger.id)">Cancelar</button>
             </div>
         </div>
-    </div>
+
 </template>
 <script>
 import Message from './Message.vue';
 
 export default {
-        name: "Dashboard",
-        data() {
+    name: "Dashboard",
+
+    data() {
         return {
-            burger: null,
+            burgers: null,
             burger_id: null,
             status: [],
             msg: null
-        }
+        };
 
     },
+    
     components: {
-    Message
+        Message
     },
 
     methods: {
@@ -68,13 +72,11 @@ export default {
         },
         
         async getStatus() {
-            const req = await fetch("http://localhost:3000/burgers");
+            const req = await fetch("http://localhost:3000/status");
             
             const data = await req.json();
 
-            this.status = data;
-            
-            
+            this.status = data;  
         
         },
         async deleteBurger(id) {
@@ -93,17 +95,17 @@ export default {
             // limpar msg
             setTimeout(() => this.msg = "",5000);
 
-            this.getPedidos
+            this.getPedidos();
 
 
         },
-        async updatedBurges(event,id) {
+        async updateBurger(event,id) {
 
             const option = event.target.value;
 
             const dataJson =JSON.stringify({status:option});
 
-            const req = await fetch (`http://localhost:3000/burgers${id}`, {
+            const req = await fetch (`http://localhost:3000/burgers/${id}`, {
                 method: "PATCH",
                 headers: { "Content-Type" : "application/json"},
                 body: dataJson
